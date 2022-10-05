@@ -20,10 +20,26 @@ tiles = { RED    : pygame.image.load("pngtile/tilered.png"),
           ARROW : pygame.image.load("pngtile/tilegray.png"),
           STAR : pygame.image.load("pngtile/tilegray.png"),
           MOON : pygame.image.load("pngtile/tilegray.png")}
+BOARD_BOSS = pygame.image.load("pngtile/bg/_BL_NFLI_A01.png")
+BOARD_AW = pygame.image.load("pngtile/bg/_BL_NFLY_A01.png")
+boards = { "layout_norm_1" : pygame.image.load("pngtile/bg/_BL_NFLA_B01.png"),
+           "layout_norm_2" : pygame.image.load("pngtile/bg/_BL_NFLB_B01.png"),
+           "layout_norm_3" : pygame.image.load("pngtile/bg/_BL_NFLC_B01.png"),
+           "layout_norm_4" : pygame.image.load("pngtile/bg/_BL_NFLD_B01.png"),
+           "layout_norm_5" : pygame.image.load("pngtile/bg/_BL_NFLE_A01.png"),
+           "layout_norm_6" : pygame.image.load("pngtile/bg/_BL_NFLF_A01.png"),
+           "layout_norm_7" : pygame.image.load("pngtile/bg/_BL_NFLG_B01.png"),
+           "layout_norm_8" : pygame.image.load("pngtile/bg/_BL_NFLH_A01.png"),
+           "layout_norm_9" : BOARD_BOSS,
+           "layout_norm_10" : BOARD_BOSS,
+           "layout_norm_11" : BOARD_BOSS,
+           "layout_aw_1" : pygame.image.load("pngtile/bg/_BL_NFLJ_A01.png"),
+           "layout_aw_2" : pygame.image.load("pngtile/bg/_BL_NFLY_A01.png")}
+LINE_TEX = pygame.image.load("pngtile/line.png")
 
-size = width, height = 160-32, 232 * 2.5
+SIZE = WIDTH, HEIGHT = 160-32, 232 * 2.5
 black = 0, 0, 0
-screen = pygame.display.set_mode(size)
+screen = pygame.display.set_mode(SIZE)
 tilerect = tiles[RED].get_rect()
 
 class Tile(pygame.sprite.Sprite):
@@ -33,13 +49,32 @@ class Tile(pygame.sprite.Sprite):
        self.image = texture
        self.rect = self.image.get_rect()
        self.rect.x = x
-       self.rect.y = y + 232*1.75
+       self.rect.y = y + 232*1.75 - 41
+
+class BoardBG(pygame.sprite.Sprite):
+    def __init__(self, texture) -> None:
+        pygame.sprite.Sprite.__init__(self)
+        self.image = texture
+        self.rect = self.image.get_rect()
+        self.rect.x = 5
+        self.rect.y = 232*1.75
+class DLine(pygame.sprite.Sprite):
+    def __init__(self) -> None:
+        pygame.sprite.Sprite.__init__(self)
+        self.image = LINE_TEX
+        self.rect = self.image.get_rect()
+        self.rect.x = 5
+        self.rect.y = 232*1.75 + 10
+
 
 for stage in range(1,12):
     for variant in range(1,5):
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
         layered_group = pygame.sprite.LayeredUpdates()
+
+        bg = BoardBG(boards.get(f"{PREFIX}{stage}", BOARD_AW))
+        layered_group.add(bg, layer=-1000)
 
         with open(f"{DIR}/{PREFIX}{stage}_{variant}") as pattern:
             words = pattern.readline().split()
@@ -57,6 +92,9 @@ for stage in range(1,12):
                 t = Tile(tiles[c], x, y)
                 
                 layered_group.add(t, layer=y)
+        
+        line = DLine()
+        layered_group.add(line, layer=-999)
 
         with open(f"{DIR}/{PREFIX}{stage}_{variant}u") as pattern:
             words = pattern.readline().split()
